@@ -24,3 +24,9 @@ export const getTopicById = async (topicId) => {
   const response = await axios.get(`/topics/${topicId}`);
   return response.data;
 };
+
+export const getTopicsByUserId = async (userId) => {
+  const response = await axios.get(`/topics/user/${userId}`);
+  console.log('Response from getTopicsByUserId:', response.data);
+  return response.data;
+};

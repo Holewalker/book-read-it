@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { Link } from 'react-router-dom';
 import {
   Box,
   Typography,
@@ -20,7 +21,12 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
 
   return (
     <Box ml={level * 4} mt={2} mb={2}>
-      <Typography variant="subtitle2" sx={{ fontWeight: 'bold' }}>
+      <Typography
+        variant="subtitle2"
+        sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}
+        component={Link}
+        to={`/users/${comment.authorUsername}`}
+      >
         {comment.authorUsername}
       </Typography>
       <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{comment.body}</Typography>

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { Container, Typography, Box } from '@mui/material';
 import BookListItems from '../components/BookListItems';
-import TopicListItems from '../components/TopicListItems';
 import { getBooksByTag } from '../api/tagApi';
 
 const TagPage = () => {

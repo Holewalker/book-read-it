@@ -4,8 +4,9 @@ import TopicList from '../components/TopicListItems.jsx';
 import FollowedTabs from '../components/FollowedTabs';
 import { useAuth } from '../hooks/useAuth';
 import { Box, Container, Typography } from '@mui/material';
-import { getPublicBooks, getUserFollowedBooks } from '../api/bookApi.js';
+import { getPublicBooks } from '../api/bookApi.js';
 import { getPublicTopics, getUserFollowedTopics } from '../api/topicApi.js';
+import { getUserFollowedBooks } from '../api/bookApi.js';
 
 const HomePage = () => {
   const { user } = useAuth();

@@ -12,7 +12,7 @@ import {
   Box,
 } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const TopBar = () => {
   const { user, logout } = useAuth();
@@ -46,10 +46,14 @@ const TopBar = () => {
   return (
     <AppBar position="fixed">
       <Toolbar>
-        <Typography variant="h6" sx={{ flexGrow: 1 }}>
+        <Typography
+          variant="h6"
+          component={Link}
+          to="/"
+          sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+        >
           Book Read It
         </Typography>
-
         <TextField
           size="small"
           placeholder="Buscar..."

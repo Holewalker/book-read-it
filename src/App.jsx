@@ -12,6 +12,10 @@ import CreateBookPage from './pages/CreateBookPage';
 import NewTopicPage from './pages/NewTopicPage';
 import TopicPage from './pages/TopicPage';
 
+
+
+import UserProfile from './pages/UserProfile';
+
 const App = () => {
   return (
     <>
@@ -29,6 +33,8 @@ const App = () => {
         <Route path="/tags/:tagName" element={<TagPage />} />
         <Route path="/book/:bookPageId/new-topic" element={<NewTopicPage />} />
         <Route path="/book/:bookPageId/:topicId" element={<TopicPage />} />
+        <Route path="/users/:username" element={<UserProfile />} />
+
 
       </Routes>
     </>
