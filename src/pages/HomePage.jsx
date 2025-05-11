@@ -3,16 +3,24 @@ import BookList from '../components/BookListItems.jsx';
 import TopicList from '../components/TopicListItems.jsx';
 import FollowedTabs from '../components/FollowedTabs';
 import { useAuth } from '../hooks/useAuth';
-import { Box, Container, Typography } from '@mui/material';
-import { getPublicBooks } from '../api/bookApi.js';
+import {
+  Box,
+  Container,
+  Typography,
+  Button,
+} from '@mui/material';
+import { getPaginatedBooks, getUserFollowedBooks } from '../api/bookApi.js';
 import { getPublicTopics, getUserFollowedTopics } from '../api/topicApi.js';
-import { getUserFollowedBooks } from '../api/bookApi.js';
 
 const HomePage = () => {
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(user ? 'followed' : 'public');
   const [books, setBooks] = useState([]);
   const [topics, setTopics] = useState([]);
+  const [page, setPage] = useState(0);
+  const [totalPages, setTotalPages] = useState(1);
+
+  const isPublicView = activeTab === 'public';
 
   useEffect(() => {
     const fetchData = async () => {
@@ -25,11 +33,12 @@ const HomePage = () => {
           setBooks(userBooks);
           setTopics(userTopics);
         } else {
-          const [publicBooks, publicTopics] = await Promise.all([
-            getPublicBooks(),
+          const [bookPage, publicTopics] = await Promise.all([
+            getPaginatedBooks(page, 5),
             getPublicTopics(),
           ]);
-          setBooks(publicBooks);
+          setBooks(bookPage.content);
+          setTotalPages(bookPage.totalPages);
           setTopics(publicTopics);
         }
       } catch (error) {
@@ -38,9 +47,12 @@ const HomePage = () => {
     };
 
     fetchData();
-  }, [user, activeTab]);
+  }, [user, activeTab, page]);
 
-  const isPublicView = activeTab === 'public';
+  // Reset page when switching tabs
+  useEffect(() => {
+    setPage(0);
+  }, [activeTab]);
 
   return (
     <Container sx={{ mt: 4 }}>
@@ -53,6 +65,29 @@ const HomePage = () => {
           {isPublicView ? 'Libros populares' : 'Tus libros'}
         </Typography>
         <BookList books={books} />
+        {isPublicView && totalPages > 1 && (
+          <Box display="flex" justifyContent="center" mt={2}>
+            <Button
+              variant="outlined"
+              disabled={page === 0}
+              onClick={() => setPage((prev) => prev - 1)}
+              sx={{ mr: 2 }}
+            >
+              Anterior
+            </Button>
+            <Typography variant="body2" sx={{ mt: 1 }}>
+              Página {page + 1} de {totalPages}
+            </Typography>
+            <Button
+              variant="outlined"
+              disabled={page >= totalPages - 1}
+              onClick={() => setPage((prev) => prev + 1)}
+              sx={{ ml: 2 }}
+            >
+              Siguiente
+            </Button>
+          </Box>
+        )}
       </Box>
 
       <Box>

@@ -5,6 +5,11 @@ export const getPublicBooks = async () => {
   return response.data;
 };
 
+export const getPaginatedBooks = async (page = 0, size = 10) => {
+  const res = await axios.get(`/book-pages/paginated?page=${page}&size=${size}`);
+  return res.data;
+};
+
 export const getBookPageById = async (bookPageId) => {
   const response = await axios.get(`/book-pages/${bookPageId}`);
   return response.data;
