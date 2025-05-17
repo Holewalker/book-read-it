@@ -131,7 +131,10 @@ const BookPage = () => {
       </Box>
 
       <Typography variant="h5" gutterBottom>Temas de discusión</Typography>
-      <TopicListItems topics={topics} />
+      <TopicListItems
+        topics={topics}
+        onDelete={(id) => setTopics((prev) => prev.filter((t) => t.id !== id))}
+      />
     </Container>
   );
 };

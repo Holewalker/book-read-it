@@ -18,13 +18,15 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify({
       username: data.username,
       email: data.email,
-      role: data.role
+      role: data.role,
+      id: data.id
     }));
   
     setUser({
       username: data.username,
       email: data.email,
-      role: data.role
+      role: data.role,
+      id: data.id
     });
   };
   

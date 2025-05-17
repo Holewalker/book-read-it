@@ -9,7 +9,7 @@ const FollowedTabs = ({ activeTab, setActiveTab }) => {
   return (
     <Box sx={{ borderBottom: 1, borderColor: 'divider', mb: 2 }}>
       <Tabs value={activeTab} onChange={handleChange}>
-        <Tab label="Temas seguidos" value="followed" />
+        <Tab label="Seguidos" value="followed" />
         <Tab label="Explorar" value="public" />
       </Tabs>
     </Box>

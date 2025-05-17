@@ -39,7 +39,7 @@ const HomePage = () => {
           ]);
           setBooks(bookPage.content);
           setTotalPages(bookPage.totalPages);
-          setTopics(publicTopics);
+          setTopics(publicTopics.slice(0, 5));
         }
       } catch (error) {
         console.error('Error al cargar datos', error);
@@ -92,9 +92,12 @@ const HomePage = () => {
 
       <Box>
         <Typography variant="h5" gutterBottom>
-          {isPublicView ? 'Temas recientes' : 'Tus temas'}
+          {isPublicView ? 'Temas recientes' : 'Temas de tus libros'}
         </Typography>
-        <TopicList topics={topics} />
+        <TopicList
+          topics={topics}
+          onDelete={(id) => setTopics((prev) => prev.filter((t) => t.id !== id))}
+        />
       </Box>
     </Container>
   );

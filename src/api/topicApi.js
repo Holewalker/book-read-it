@@ -30,3 +30,13 @@ export const getTopicsByUserId = async (userId) => {
   console.log('Response from getTopicsByUserId:', response.data);
   return response.data;
 };
+
+export const updateTopic = async (topicId, topicData) => {
+  const res = await axios.put(`/topics/${topicId}`, topicData);
+  return res.data;
+};
+
+export const deleteTopic = async (topicId) => {
+  const res = await axios.delete(`/topics/${topicId}`);
+  return res.data;
+};
