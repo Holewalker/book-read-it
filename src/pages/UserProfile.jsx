@@ -44,8 +44,8 @@ const UserProfile = () => {
       <Typography variant="h4">{user.username}</Typography>
       <Typography variant="h6" mt={4}>Temas creados</Typography>
       <TopicListItems
-        topics={topics}
-        onDelete={(id) => setTopics((prev) => prev.filter((t) => t.id !== id))}
+        topics={userTopics}
+        onDelete={(id) => setUserTopics((prev) => prev.filter((t) => t.id !== id))}
       />
     </Container>
   );

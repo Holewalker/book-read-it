@@ -43,6 +43,14 @@ const TopBar = () => {
     navigate('/create-book');
   };
 
+  const [searchText, setSearchText] = useState('');
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchText.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
+    }
+  };
+
   return (
     <AppBar position="fixed">
       <Toolbar>
@@ -54,11 +62,15 @@ const TopBar = () => {
         >
           Book Read It
         </Typography>
-        <TextField
-          size="small"
-          placeholder="Buscar..."
-          sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
-        />
+        <form onSubmit={handleSearch}>
+          <TextField
+            size="small"
+            placeholder="Buscar libros o etiquetas..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
+          />
+        </form>
 
         {user ? (
           <>
