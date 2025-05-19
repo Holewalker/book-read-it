@@ -4,9 +4,9 @@ import {
   Box,
   Typography,
   TextField,
-  Button,
+  Button
 } from '@mui/material';
-
+import Divider from '@mui/material/Divider';
 const CommentItem = ({ commentTree, onReply, level = 0 }) => {
   const { comment, replies } = commentTree;
   const [showReplyField, setShowReplyField] = useState(false);
@@ -38,7 +38,7 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
         <Button size="small" onClick={() => setShowReplyField(!showReplyField)}>
           Responder
         </Button>
-      </Box>
+      </Box><Divider sx={{ mt: 2 }} />
 
       {showReplyField && (
         <Box mt={1}>
@@ -69,6 +69,7 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
           level={level + 1}
         />
       ))}
+      
     </Box>
   );
 };

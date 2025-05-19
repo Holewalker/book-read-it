@@ -11,8 +11,10 @@ import {
 } from '@mui/material';
 import { getPaginatedBooks, getUserFollowedBooks } from '../api/bookApi.js';
 import { getPublicTopics, getUserFollowedTopics } from '../api/topicApi.js';
+import { useNotifications } from '../context/NotificationContext';
 
 const HomePage = () => {
+  const { reloadNotifications } = useNotifications();
   const { user } = useAuth();
   const [activeTab, setActiveTab] = useState(user ? 'followed' : 'public');
   const [books, setBooks] = useState([]);
@@ -47,6 +49,7 @@ const HomePage = () => {
     };
 
     fetchData();
+    reloadNotifications();
   }, [user, activeTab, page]);
 
   // Reset page when switching tabs

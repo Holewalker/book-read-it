@@ -12,8 +12,9 @@ import {
   Box,
 } from '@mui/material';
 import { useAuth } from '../hooks/useAuth';
-import { useNavigate, Link } from 'react-router-dom';
-
+import { useNavigate } from 'react-router-dom';
+import NotificationsMenu from './NotificationsMenu';
+import NotificationAutoReload from './NotificationAutoReload';
 const TopBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -39,44 +40,28 @@ const TopBar = () => {
     navigate('/profile');
   };
 
-  const handleCreateBook = () => {
-    navigate('/create-book');
-  };
-
-  const [searchText, setSearchText] = useState('');
-  const handleSearch = (e) => {
-    e.preventDefault();
-    if (searchText.trim()) {
-      navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
-    }
-  };
-
   return (
     <AppBar position="fixed">
+      <NotificationAutoReload />
       <Toolbar>
         <Typography
           variant="h6"
-          component={Link}
-          to="/"
-          sx={{ flexGrow: 1, textDecoration: 'none', color: 'inherit', cursor: 'pointer' }}
+          sx={{ flexGrow: 1, cursor: 'pointer' }}
+          onClick={() => navigate('/')}
         >
           Book Read It
         </Typography>
-        <form onSubmit={handleSearch}>
-          <TextField
-            size="small"
-            placeholder="Buscar libros o etiquetas..."
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
-          />
-        </form>
+
+        <TextField
+          size="small"
+          placeholder="Buscar..."
+          sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
+        />
 
         {user ? (
           <>
-            <Button color="inherit" onClick={handleCreateBook} sx={{ mr: 1 }}>
-              Nuevo libro
-            </Button>
+            <NotificationsMenu />
+
             <IconButton onClick={handleMenuOpen} color="inherit">
               <Avatar>{user.username.charAt(0).toUpperCase()}</Avatar>
             </IconButton>
