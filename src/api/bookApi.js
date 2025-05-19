@@ -33,3 +33,7 @@ export const searchBooks = async (query, page = 0, size = 10) => {
   });
   return response.data;
 };
+export const updateBookTags = async (bookId, tags) => {
+  const response = await axios.put(`/book-pages/${bookId}`, tags);
+  return response.data;
+};

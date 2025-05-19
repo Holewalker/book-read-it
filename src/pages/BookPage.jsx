@@ -7,9 +7,10 @@ import {
   Grid,
   CircularProgress,
   Button,
+  TextField,
 } from '@mui/material';
 import TopicListItems from '../components/TopicListItems';
-import { getBookPageById } from '../api/bookApi';
+import { getBookPageById, updateBookTags } from '../api/bookApi';
 import { getTopicsByBookId } from '../api/topicApi';
 import { followBook, unfollowBook, getUserFollowedBooksList } from '../api/userApi.js';
 import { useAuth } from '../hooks/useAuth';
@@ -23,6 +24,8 @@ const BookPage = () => {
   const [topics, setTopics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [isFollowed, setIsFollowed] = useState(false);
+  const [editTags, setEditTags] = useState(false);
+  const [tagsInput, setTagsInput] = useState('');
 
   useEffect(() => {
     const fetchData = async () => {
@@ -30,6 +33,7 @@ const BookPage = () => {
         const bookData = await getBookPageById(bookPageId);
         const topicsData = await getTopicsByBookId(bookPageId);
         setBook(bookData);
+        setTagsInput((bookData.tags || []).join(', '));
         setTopics(topicsData);
 
         if (user) {
@@ -59,6 +63,20 @@ const BookPage = () => {
     }
   };
 
+  const handleTagSave = async () => {
+    try {
+      const tags = tagsInput
+        .split(',')
+        .map(t => t.trim().toLowerCase())
+        .filter(Boolean);
+      await updateBookTags(bookPageId, tags);
+      setBook(prev => ({ ...prev, tags }));
+      setEditTags(false);
+    } catch (err) {
+      console.error('Error al guardar etiquetas:', err);
+    }
+  };
+
   if (loading) return <Box p={4}><CircularProgress /></Box>;
   if (!book) return <Box p={4}><Typography>Libro no encontrado</Typography></Box>;
 
@@ -84,14 +102,28 @@ const BookPage = () => {
 
           <Grid item xs={12} md={9}>
             <Typography variant="h4" gutterBottom>{book.title}</Typography>
-            <Typography variant="body2" gutterBottom><strong>ISBN:</strong> {book.isbn || 'No disponible'}</Typography>
+            <Typography variant="body2"><strong>ISBN:</strong> {book.isbn}</Typography>
             <Typography variant="body2" gutterBottom><strong>Creador:</strong> {book.ownerUserId || 'Anónimo'}</Typography>
 
-            {book.tags?.length > 0 && (
-              <Box mt={2}>
-                <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Etiquetas:</Typography>
+            <Box mt={2}>
+              <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Etiquetas:</Typography>
+              {editTags ? (
+                <>
+                  <TextField
+                    fullWidth
+                    value={tagsInput}
+                    onChange={(e) => setTagsInput(e.target.value)}
+                    placeholder="Ej: fantasía, aventuras"
+                    sx={{ mt: 1 }}
+                  />
+                  <Box mt={1}>
+                    <Button size="small" variant="contained" onClick={handleTagSave}>Guardar</Button>
+                    <Button size="small" sx={{ ml: 1 }} onClick={() => setEditTags(false)}>Cancelar</Button>
+                  </Box>
+                </>
+              ) : (
                 <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mt: 1 }}>
-                  {book.tags.map(tag => (
+                  {(book.tags || []).map(tag => (
                     <Link to={`/tags/${tag}`} key={tag} style={{ textDecoration: 'none' }}>
                       <Box sx={{
                         bgcolor: '#e0e0e0',
@@ -106,8 +138,11 @@ const BookPage = () => {
                     </Link>
                   ))}
                 </Box>
-              </Box>
-            )}
+              )}
+              {user?.id === book.ownerUserId && !editTags && (
+                <Button size="small" sx={{ mt: 1 }} onClick={() => setEditTags(true)}>Editar etiquetas</Button>
+              )}
+            </Box>
 
             {user && (
               <Box mt={3} sx={{ display: 'flex', gap: 2 }}>
