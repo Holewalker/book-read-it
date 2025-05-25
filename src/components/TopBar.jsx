@@ -15,6 +15,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import NotificationsMenu from './NotificationsMenu';
 import NotificationAutoReload from './NotificationAutoReload';
+
 const TopBar = () => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -60,6 +61,15 @@ const TopBar = () => {
 
         {user ? (
           <>
+            <Button
+              variant="outlined"
+              color="inherit"
+              sx={{ mr: 2 }}
+              onClick={() => navigate('/create-book')}
+            >
+              Nuevo libro
+            </Button>
+
             <NotificationsMenu />
 
             <IconButton onClick={handleMenuOpen} color="inherit">

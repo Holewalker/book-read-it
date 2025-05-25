@@ -8,12 +8,18 @@ import {
   CircularProgress,
   Button,
   TextField,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
 } from '@mui/material';
 import TopicListItems from '../components/TopicListItems';
 import { getBookPageById, updateBookTags } from '../api/bookApi';
 import { getTopicsByBookId } from '../api/topicApi';
 import { followBook, unfollowBook, getUserFollowedBooksList } from '../api/userApi.js';
 import { useAuth } from '../hooks/useAuth';
+import { getUserNamebyId } from '../api/userApi';
+import RoleManager from '../components/RoleManager';
 
 const BookPage = () => {
   const { bookPageId } = useParams();
@@ -26,12 +32,16 @@ const BookPage = () => {
   const [isFollowed, setIsFollowed] = useState(false);
   const [editTags, setEditTags] = useState(false);
   const [tagsInput, setTagsInput] = useState('');
+  const [username, setUsername] = useState('');
+  const [showRoleManager, setShowRoleManager] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const bookData = await getBookPageById(bookPageId);
         const topicsData = await getTopicsByBookId(bookPageId);
+        const username = await getUserNamebyId(bookData.ownerUserId);
+        setUsername(username);
         setBook(bookData);
         setTagsInput((bookData.tags || []).join(', '));
         setTopics(topicsData);
@@ -103,7 +113,24 @@ const BookPage = () => {
           <Grid item xs={12} md={9}>
             <Typography variant="h4" gutterBottom>{book.title}</Typography>
             <Typography variant="body2"><strong>ISBN:</strong> {book.isbn}</Typography>
-            <Typography variant="body2" gutterBottom><strong>Creador:</strong> {book.ownerUserId || 'Anónimo'}</Typography>
+            <Typography variant="body2" gutterBottom>
+              <strong>Creador:</strong>{' '}
+              {username ? (
+                <Link to={`/users/${username}`} style={{ textDecoration: 'none' }}>
+                  {username}
+                </Link>
+              ) : (
+                'Anónimo'
+              )}
+            </Typography>
+
+            {user?.id === book.ownerUserId && (
+              <Box sx={{ mt: 2 }}>
+                <Button size="small" onClick={() => setShowRoleManager(true)}>
+                  Gestionar roles
+                </Button>
+              </Box>
+            )}
 
             <Box mt={2}>
               <Typography variant="body2" sx={{ fontWeight: 'bold' }}>Etiquetas:</Typography>
@@ -139,6 +166,7 @@ const BookPage = () => {
                   ))}
                 </Box>
               )}
+
               {user?.id === book.ownerUserId && !editTags && (
                 <Button size="small" sx={{ mt: 1 }} onClick={() => setEditTags(true)}>Editar etiquetas</Button>
               )}
@@ -170,6 +198,17 @@ const BookPage = () => {
         topics={topics}
         onDelete={(id) => setTopics((prev) => prev.filter((t) => t.id !== id))}
       />
+
+      {/* Diálogo para gestión de roles */}
+      <Dialog open={showRoleManager} onClose={() => setShowRoleManager(false)} maxWidth="md" fullWidth>
+        <DialogTitle>Gestión de roles</DialogTitle>
+        <DialogContent>
+          <RoleManager bookId={book.id} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setShowRoleManager(false)}>Cerrar</Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

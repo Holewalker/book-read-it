@@ -37,3 +37,8 @@ export const updateBookTags = async (bookId, tags) => {
   const response = await axios.put(`/book-pages/${bookId}`, tags);
   return response.data;
 };
+
+export const getRolesByBookId = async (bookId) => {
+  const response = await axios.get(`/roles/book/${bookId}`);
+  return response.data;
+}

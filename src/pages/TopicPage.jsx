@@ -9,6 +9,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { getTopicById } from '../api/topicApi';
 import { getCommentTree, createComment } from '../api/commentApi';
+import { getUserRolesForBook } from '../api/roleApi'; // 👈 nuevo import
 import { useAuth } from '../hooks/useAuth';
 import CommentItem from '../components/CommentItem';
 import NewCommentForm from '../components/NewCommentForm';
@@ -19,15 +20,23 @@ const TopicPage = () => {
 
   const [topic, setTopic] = useState(null);
   const [commentTree, setCommentTree] = useState([]);
+  const [userRoles, setUserRoles] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Carga topic, árbol de comentarios y roles
   useEffect(() => {
     const fetchData = async () => {
       try {
         const topicData = await getTopicById(topicId);
         const commentsTreeData = await getCommentTree(topicId);
+
         setTopic(topicData);
         setCommentTree(commentsTreeData);
+
+        if (user && topicData?.bookId) {
+          const roles = await getUserRolesForBook(topicData.bookId);
+          setUserRoles(roles);
+        }
       } catch (error) {
         console.error('Error al cargar el tema o comentarios', error);
       } finally {
@@ -36,7 +45,7 @@ const TopicPage = () => {
     };
 
     fetchData();
-  }, [topicId]);
+  }, [topicId, user]);
 
   const handleReply = async (body, parentCommentId = null) => {
     try {
@@ -92,6 +101,7 @@ const TopicPage = () => {
             key={treeItem.comment.id}
             commentTree={treeItem}
             onReply={handleReply}
+            userRoles={userRoles} // 👈 aquí se pasan los roles
           />
         ))
       )}

@@ -5,18 +5,21 @@ import {
   Typography,
   TextField,
   Button,
-  Divider,
+  IconButton,
+  Divider
 } from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
+import { useAuth } from '../hooks/useAuth';
 
-const REPLIES_PAGE_SIZE = 2;
-const MAX_NESTED_DEPTH = 2;
-
-const CommentItem = ({ commentTree, onReply, level = 0 }) => {
+const CommentItem = ({ commentTree, onReply, level = 0, userRoles = [] }) => {
   const { comment, replies = [] } = commentTree;
   const [showReplyField, setShowReplyField] = useState(false);
   const [replyText, setReplyText] = useState('');
-  const [visibleReplies, setVisibleReplies] = useState(REPLIES_PAGE_SIZE);
-  const [showNestedReplies, setShowNestedReplies] = useState(level < MAX_NESTED_DEPTH);
+  const { user } = useAuth();
+
+  const isDeleted = comment.body === '[deleted]';
+  const isAuthor = user?.username === comment.authorUsername;
+  const canDelete = isAuthor || (userRoles && (userRoles.role==='OWNER' || userRoles.includes==='MODERATOR'));
 
   const handleSubmitReply = async () => {
     if (!replyText.trim()) return;
@@ -25,38 +28,56 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
     setShowReplyField(false);
   };
 
-  const handleShowMoreReplies = () => {
-    setVisibleReplies((prev) => prev + REPLIES_PAGE_SIZE);
-  };
+  const handleDelete = async () => {
+    const confirmed = window.confirm('¿Eliminar comentario? El contenido será reemplazado por "[deleted]".');
+    if (!confirmed) return;
 
-  const handleShowNested = () => {
-    setShowNestedReplies(true);
+    try {
+      await fetch(`/api/comments/${comment.id}/delete`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+
+      comment.body = '[deleted]';
+    } catch (e) {
+      console.error('Error al eliminar comentario', e);
+    }
   };
 
   return (
     <Box ml={level * 4} mt={2} mb={2}>
-      <Typography
-        variant="subtitle2"
-        sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}
-        component={Link}
-        to={`/users/${comment.authorUsername}`}
-      >
-        {comment.authorUsername}
-      </Typography>
+      <Box display="flex" alignItems="center" justifyContent="space-between">
+        <Typography
+          variant="subtitle2"
+          sx={{ fontWeight: 'bold', textDecoration: 'none', color: 'inherit' }}
+          component={comment.authorUsername ? Link : 'span'}
+          to={comment.authorUsername ? `/users/${comment.authorUsername}` : undefined}
+        >
+          {comment.authorUsername || '[deleted]'}
+        </Typography>
+        {canDelete && !isDeleted && (
+          <IconButton size="small" onClick={handleDelete}>
+            <DeleteIcon fontSize="small" />
+          </IconButton>
+        )}
+      </Box>
 
       <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
         {comment.body}
       </Typography>
-
       <Typography variant="caption" color="text.secondary">
         {new Date(comment.createdAt).toLocaleString()}
       </Typography>
 
-      <Box>
-        <Button size="small" onClick={() => setShowReplyField(!showReplyField)}>
-          Responder
-        </Button>
-      </Box>
+      {!isDeleted && (
+        <Box>
+          <Button size="small" onClick={() => setShowReplyField(!showReplyField)}>
+            Responder
+          </Button>
+        </Box>
+      )}
 
       {showReplyField && (
         <Box mt={1}>
@@ -79,39 +100,17 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
         </Box>
       )}
 
-      <Divider sx={{ mt: 2, mb: 2 }} />
+      <Divider sx={{ mt: 2 }} />
 
-      {showNestedReplies ? (
-        <>
-          {replies.slice(0, visibleReplies).map((replyTree) => (
-            <CommentItem
-              key={replyTree.comment.id}
-              commentTree={replyTree}
-              onReply={onReply}
-              level={level + 1}
-            />
-          ))}
-          {replies.length > visibleReplies && (
-            <Button
-              size="small"
-              sx={{ mt: 1 }}
-              onClick={handleShowMoreReplies}
-            >
-              Ver más respuestas
-            </Button>
-          )}
-        </>
-      ) : (
-        replies.length > 0 && (
-          <Button
-            size="small"
-            sx={{ mt: 1 }}
-            onClick={handleShowNested}
-          >
-            Ver respuestas
-          </Button>
-        )
-      )}
+      {replies.map((replyTree) => (
+        <CommentItem
+          key={replyTree.comment.id}
+          commentTree={replyTree}
+          onReply={onReply}
+          level={level + 1}
+          userRoles={userRoles}
+        />
+      ))}
     </Box>
   );
 };
