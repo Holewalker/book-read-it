@@ -4,19 +4,33 @@ import {
   Box,
   Typography,
   TextField,
-  Button
+  Button,
+  Divider,
 } from '@mui/material';
-import Divider from '@mui/material/Divider';
+
+const REPLIES_PAGE_SIZE = 2;
+const MAX_NESTED_DEPTH = 2;
+
 const CommentItem = ({ commentTree, onReply, level = 0 }) => {
-  const { comment, replies } = commentTree;
+  const { comment, replies = [] } = commentTree;
   const [showReplyField, setShowReplyField] = useState(false);
   const [replyText, setReplyText] = useState('');
+  const [visibleReplies, setVisibleReplies] = useState(REPLIES_PAGE_SIZE);
+  const [showNestedReplies, setShowNestedReplies] = useState(level < MAX_NESTED_DEPTH);
 
   const handleSubmitReply = async () => {
     if (!replyText.trim()) return;
     await onReply(replyText, comment.id);
     setReplyText('');
     setShowReplyField(false);
+  };
+
+  const handleShowMoreReplies = () => {
+    setVisibleReplies((prev) => prev + REPLIES_PAGE_SIZE);
+  };
+
+  const handleShowNested = () => {
+    setShowNestedReplies(true);
   };
 
   return (
@@ -29,7 +43,11 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
       >
         {comment.authorUsername}
       </Typography>
-      <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>{comment.body}</Typography>
+
+      <Typography variant="body2" sx={{ whiteSpace: 'pre-line' }}>
+        {comment.body}
+      </Typography>
+
       <Typography variant="caption" color="text.secondary">
         {new Date(comment.createdAt).toLocaleString()}
       </Typography>
@@ -38,7 +56,7 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
         <Button size="small" onClick={() => setShowReplyField(!showReplyField)}>
           Responder
         </Button>
-      </Box><Divider sx={{ mt: 2 }} />
+      </Box>
 
       {showReplyField && (
         <Box mt={1}>
@@ -61,15 +79,39 @@ const CommentItem = ({ commentTree, onReply, level = 0 }) => {
         </Box>
       )}
 
-      {replies && replies.map((replyTree) => (
-        <CommentItem
-          key={replyTree.comment.id}
-          commentTree={replyTree}
-          onReply={onReply}
-          level={level + 1}
-        />
-      ))}
-      
+      <Divider sx={{ mt: 2, mb: 2 }} />
+
+      {showNestedReplies ? (
+        <>
+          {replies.slice(0, visibleReplies).map((replyTree) => (
+            <CommentItem
+              key={replyTree.comment.id}
+              commentTree={replyTree}
+              onReply={onReply}
+              level={level + 1}
+            />
+          ))}
+          {replies.length > visibleReplies && (
+            <Button
+              size="small"
+              sx={{ mt: 1 }}
+              onClick={handleShowMoreReplies}
+            >
+              Ver más respuestas
+            </Button>
+          )}
+        </>
+      ) : (
+        replies.length > 0 && (
+          <Button
+            size="small"
+            sx={{ mt: 1 }}
+            onClick={handleShowNested}
+          >
+            Ver respuestas
+          </Button>
+        )
+      )}
     </Box>
   );
 };
