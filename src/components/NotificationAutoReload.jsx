@@ -1,17 +1,24 @@
-
+import { useAuth } from '../hooks/useAuth';
 import { useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
-import { useNotifications } from '../context/NotificationContext'; // Ajusta la ruta según dónde esté
+import { useNotifications } from '../context/NotificationContext';
 
 const NotificationAutoReload = () => {
-  const location = useLocation();
+  const { user } = useAuth();
   const { reloadNotifications } = useNotifications();
 
   useEffect(() => {
-    reloadNotifications();
-  }, [location.pathname]);
+    if (!user) return;
+
+    const interval = setInterval(() => {
+      console.log('Notificaciones recargadas automáticamente');
+      reloadNotifications();
+    }, 60000); // 1 minuto
+
+    return () => clearInterval(interval);
+  }, [user, reloadNotifications]);
 
   return null;
 };
+
 
 export default NotificationAutoReload;

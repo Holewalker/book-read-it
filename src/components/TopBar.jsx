@@ -41,23 +41,42 @@ const TopBar = () => {
     navigate('/profile');
   };
 
+  const [searchText, setSearchText] = useState('');
+  const handleSearch = (e) => {
+    e.preventDefault();
+    if (searchText.trim()) {
+      navigate(`/search?q=${encodeURIComponent(searchText.trim())}`);
+    }
+  };
+
   return (
     <AppBar position="fixed">
       <NotificationAutoReload />
       <Toolbar>
-        <Typography
-          variant="h6"
-          sx={{ flexGrow: 1, cursor: 'pointer' }}
-          onClick={() => navigate('/')}
-        >
-          Book Read It
-        </Typography>
+       
+          <img
+            src="./src/assets/bookreaditlogowhite.png"
+            alt="Logo"
+            style={{ height: '60px', cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          />
 
-        <TextField
-          size="small"
-          placeholder="Buscar..."
-          sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
-        />
+          <Typography
+            variant="h6"
+            sx={{ flexGrow: 1, cursor: 'pointer' }}
+            onClick={() => navigate('/')}
+          >
+          </Typography>
+ 
+        <form onSubmit={handleSearch}>
+          <TextField
+            size="small"
+            placeholder="Buscar libros..."
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
+            sx={{ mr: 2, backgroundColor: 'white', borderRadius: 1 }}
+          />
+        </form>
 
         {user ? (
           <>

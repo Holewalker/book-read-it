@@ -1,6 +1,6 @@
-// context/NotificationContext.jsx
-import React, { createContext, useContext, useLocation, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import { getNotifications, markNotificationAsRead } from '../api/notificationApi';
+import { useAuth } from '../hooks/useAuth';
 
 const NotificationContext = createContext();
 
@@ -8,15 +8,17 @@ export const useNotifications = () => useContext(NotificationContext);
 
 export const NotificationProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
+  const { user } = useAuth();
 
-  const loadNotifications = async () => {
+  const loadNotifications = useCallback(async () => {
+    if (!user) return;
     try {
       const data = await getNotifications();
       setNotifications(data);
     } catch (error) {
       console.error('Error al cargar notificaciones:', error);
     }
-  };
+  }, [user]);
 
   const markAsRead = async (id) => {
     await markNotificationAsRead(id);
@@ -27,7 +29,7 @@ export const NotificationProvider = ({ children }) => {
 
   useEffect(() => {
     loadNotifications();
-  }, []);
+  }, [loadNotifications]);
 
   return (
     <NotificationContext.Provider value={{
@@ -40,5 +42,3 @@ export const NotificationProvider = ({ children }) => {
     </NotificationContext.Provider>
   );
 };
-
-

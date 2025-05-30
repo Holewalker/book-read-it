@@ -12,8 +12,16 @@ import {
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import { useNotifications } from '../context/NotificationContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../hooks/useAuth';
 
 const NotificationMenu = () => {
+
+  const { user } = useAuth();
+  if (!user) {
+    console.warn('NotificationMenu: user is not defined, skipping rendering');
+    return null;
+  }
+
   const { notifications, unreadCount, markAsRead, reloadNotifications } = useNotifications();
   const [anchorEl, setAnchorEl] = useState(null);
   const navigate = useNavigate();
@@ -34,7 +42,7 @@ const NotificationMenu = () => {
       await markAsRead(notification.id);
     }
     handleClose();
-      navigate(`/book/${notification.bookId}/${notification.topicId}`);
+    navigate(`/book/${notification.bookId}/${notification.topicId}`);
   };
 
   return (
