@@ -87,42 +87,6 @@ const RoleManager = () => {
       console.error('Error al eliminar rol:', error);
     }
   };
-  const handleAssign = async () => {
-    try {
-      const newRole = {
-        userId: newUserId,
-        role: newUserRole,
-        bookId: bookPageId,
-      };
-      const saved = await assignRole(newRole);
-
-      // Obtener username si es nuevo
-      if (!usernames[newUserId]) {
-        try {
-          const user = await getUserById(newUserId);
-          setUsernames(prev => ({ ...prev, [user.userId]: user.username }));
-        } catch {
-          // Fallback si no existe
-          setUsernames(prev => ({ ...prev, [newUserId]: newUserId }));
-        }
-      }
-
-      setRoles(prev => {
-        const exists = prev.find(r => r.userId === newUserId);
-        if (exists) {
-          return prev.map(r =>
-            r.userId === newUserId ? { ...r, role: newUserRole } : r
-          );
-        }
-        return [...prev, saved];
-      });
-
-      setNewUserId('');
-      setNewUserRole('READER');
-    } catch (error) {
-      console.error('Error al asignar rol:', error);
-    }
-  };
 
   const handleAddRole = async () => {
   try {
@@ -133,13 +97,9 @@ const RoleManager = () => {
       userId: user.userId,
       role: newRole,
     });
-
-    setRoles(prev => [...prev, {
-      userId: user.userId,
-      bookId: bookPageId,
-      role: newRole,
-      id: crypto.randomUUID(), // temporal si no se vuelve a pedir desde el back
-    }]);
+    // Refresh roles from backend
+    const updatedRoles = await getRolesByBookId(bookPageId);
+    setRoles(updatedRoles);
 
     setUsernames(prev => ({
       ...prev,
