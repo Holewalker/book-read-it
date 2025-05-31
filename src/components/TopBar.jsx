@@ -55,7 +55,7 @@ const TopBar = () => {
       <Toolbar>
        
           <img
-            src="./src/assets/bookreaditlogowhite.png"
+            src="bookreaditlogowhite.png"
             alt="Logo"
             style={{ height: '60px', cursor: 'pointer' }}
             onClick={() => navigate('/')}
