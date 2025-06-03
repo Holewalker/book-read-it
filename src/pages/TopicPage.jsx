@@ -9,7 +9,7 @@ import {
 import { useParams } from 'react-router-dom';
 import { getTopicById } from '../api/topicApi';
 import { getCommentTree, createComment } from '../api/commentApi';
-import { getUserRolesForBook } from '../api/roleApi'; // 👈 nuevo import
+import { getUserRolesForBook } from '../api/roleApi';
 import { useAuth } from '../hooks/useAuth';
 import CommentItem from '../components/CommentItem';
 import NewCommentForm from '../components/NewCommentForm';
@@ -101,7 +101,7 @@ const TopicPage = () => {
             key={treeItem.comment.id}
             commentTree={treeItem}
             onReply={handleReply}
-            userRoles={userRoles} // 👈 aquí se pasan los roles
+            userRoles={userRoles} 
           />
         ))
       )}

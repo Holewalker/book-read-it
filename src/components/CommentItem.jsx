@@ -11,15 +11,21 @@ import {
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useAuth } from '../hooks/useAuth';
 
+const REPLIES_PAGE_SIZE = 2;      // Número de respuestas por página
+const MAX_NESTED_DEPTH = 2;       // Profundidad máxima de anidamiento mostrada por defecto
+
 const CommentItem = ({ commentTree, onReply, level = 0, userRoles = [] }) => {
   const { comment, replies = [] } = commentTree;
   const [showReplyField, setShowReplyField] = useState(false);
   const [replyText, setReplyText] = useState('');
+  const [visibleReplies, setVisibleReplies] = useState(REPLIES_PAGE_SIZE);
+  const [showNestedReplies, setShowNestedReplies] = useState(level < MAX_NESTED_DEPTH);
+
   const { user } = useAuth();
 
   const isDeleted = comment.body === '[deleted]';
   const isAuthor = user?.username === comment.authorUsername;
-  const canDelete = isAuthor || (userRoles && (userRoles.role==='OWNER' || userRoles.includes==='MODERATOR'));
+  const canDelete = isAuthor || (userRoles && (userRoles.role === 'OWNER' || userRoles.includes === 'MODERATOR'));
 
   const handleSubmitReply = async () => {
     if (!replyText.trim()) return;
@@ -44,6 +50,14 @@ const CommentItem = ({ commentTree, onReply, level = 0, userRoles = [] }) => {
     } catch (e) {
       console.error('Error al eliminar comentario', e);
     }
+  };
+
+  const handleShowMoreReplies = () => {
+    setVisibleReplies(prev => prev + REPLIES_PAGE_SIZE);
+  };
+
+  const handleShowNested = () => {
+    setShowNestedReplies(true);
   };
 
   return (
@@ -100,17 +114,41 @@ const CommentItem = ({ commentTree, onReply, level = 0, userRoles = [] }) => {
         </Box>
       )}
 
-      <Divider sx={{ mt: 2 }} />
+      <Divider sx={{ mt: 2, mb: 2 }} />
 
-      {replies.map((replyTree) => (
-        <CommentItem
-          key={replyTree.comment.id}
-          commentTree={replyTree}
-          onReply={onReply}
-          level={level + 1}
-          userRoles={userRoles}
-        />
-      ))}
+      {/* Aquí la paginación/anidamiento de respuestas */}
+      {showNestedReplies ? (
+        <>
+          {replies.slice(0, visibleReplies).map((replyTree) => (
+            <CommentItem
+              key={replyTree.comment.id}
+              commentTree={replyTree}
+              onReply={onReply}
+              level={level + 1}
+              userRoles={userRoles}
+            />
+          ))}
+          {replies.length > visibleReplies && (
+            <Button
+              size="small"
+              sx={{ mt: 1 }}
+              onClick={handleShowMoreReplies}
+            >
+              Ver más respuestas
+            </Button>
+          )}
+        </>
+      ) : (
+        replies.length > 0 && (
+          <Button
+            size="small"
+            sx={{ mt: 1 }}
+            onClick={handleShowNested}
+          >
+            Ver respuestas
+          </Button>
+        )
+      )}
     </Box>
   );
 };
